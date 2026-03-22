@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Or, Repository } from 'typeorm';
 import { Product } from '../entities/product.entity';
 import type { PaginatedResponse } from '../common/types';
+import { PaginationHelper } from '../common/utils/pagination.helper';
 
 @Injectable()
 export class ProductsService {
@@ -11,23 +12,22 @@ export class ProductsService {
     private productsRepository: Repository<Product>,
   ) {}
 
-  async findAllWithPagination(
-    page: number = 1,
-    limit: number = 20,
-  ): Promise<PaginatedResponse<Product>> {
-    const skip = (page - 1) * limit;
+  async findAllWithPagination(page: number = 1, limit: number = 20): Promise<PaginatedResponse<Product>> {
+    const { page: validPage, limit: validLimit } = PaginationHelper.validateAndNormalize(page, limit);
+    const skip = PaginationHelper.calculateSkip(validPage, validLimit);
+
     const [items, total] = await this.productsRepository.findAndCount({
       relations: ['reviews', 'reviews.author'],
       skip,
-      take: limit,
+      take: validLimit,
     });
 
     return {
       items,
       total,
-      page,
-      limit,
-      pages: Math.ceil(total / limit),
+      page: validPage,
+      limit: validLimit,
+      pages: PaginationHelper.calculatePages(total, validLimit),
     };
   }
 
@@ -46,44 +46,40 @@ export class ProductsService {
   }
 
   async getMostAppreciatedProducts(limit: number = 5): Promise<Product[]> {
-    const products = await this.productsRepository.find({
-      relations: ['reviews', 'reviews.author'],
-      order: { createdAt: 'DESC' },
-    });
+    const topProductIds = this.productsRepository
+      .createQueryBuilder('product')
+      .select('product.id')
+      .leftJoin('product.reviews', 'reviews')
+      .groupBy('product.id')
+      .having('COUNT(CASE WHEN reviews.notation > 3 THEN 1 END) > 0')
+      .orderBy('COUNT(CASE WHEN reviews.notation > 3 THEN 1 END)', 'DESC')
+      .limit(limit)
+      .getQuery();
 
-    const productsWithCount = products.map((product) => {
-      const positiveReviewCount = product.reviews?.filter(
-        (review) => review.notation > 3,
-      ).length || 0;
-      return { product, positiveReviewCount };
-    });
-
-    return productsWithCount
-      .sort((a, b) => b.positiveReviewCount - a.positiveReviewCount)
-      .slice(0, limit)
-      .map((item) => item.product);
+    return this.productsRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.reviews', 'reviews')
+      .leftJoinAndSelect('reviews.author', 'author')
+      .where(`product.id IN (${topProductIds})`)
+      .getMany();
   }
 
   async getLowestRatedProducts(limit: number = 5): Promise<Product[]> {
-    const products = await this.productsRepository.find({
-      relations: ['reviews', 'reviews.author'],
-      order: { createdAt: 'DESC' },
-    });
+    const lowestRatedIds = this.productsRepository
+      .createQueryBuilder('product')
+      .select('product.id')
+      .leftJoin('product.reviews', 'reviews')
+      .groupBy('product.id')
+      .having('AVG(reviews.notation) < 3 AND COUNT(reviews.notation) > 0')
+      .orderBy('AVG(reviews.notation)', 'ASC')
+      .limit(limit)
+      .getQuery();
 
-    const productsWithRating = products
-      .map((product) => {
-        const average =
-          product.reviews?.length && product.reviews.length > 0
-            ? product.reviews.reduce((sum, review) => sum + review.notation, 0) /
-              product.reviews.length
-            : 0;
-        return { product, average };
-      })
-      .filter((item) => item.average < 3);
-
-    return productsWithRating
-      .sort((a, b) => a.average - b.average)
-      .slice(0, limit)
-      .map((item) => item.product);
+    return this.productsRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.reviews', 'reviews')
+      .leftJoinAndSelect('reviews.author', 'author')
+      .where(`product.id IN (${lowestRatedIds})`)
+      .getMany();
   }
 }

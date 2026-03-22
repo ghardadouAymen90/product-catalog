@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Author } from '../entities/author.entity';
 import type { PaginatedResponse } from '../common/types';
+import { PaginationHelper } from '../common/utils/pagination.helper';
 
 @Injectable()
 export class AuthorsService {
@@ -11,24 +12,23 @@ export class AuthorsService {
     private authorsRepository: Repository<Author>,
   ) {}
 
-  async findAllWithPagination(
-    page: number = 1,
-    limit: number = 20,
-  ): Promise<PaginatedResponse<Author>> {
-    const skip = (page - 1) * limit;
+  async findAllWithPagination(page: number = 1, limit: number = 20): Promise<PaginatedResponse<Author>> {
+    const { page: validPage, limit: validLimit } = PaginationHelper.validateAndNormalize(page, limit);
+    const skip = PaginationHelper.calculateSkip(validPage, validLimit);
+
     const [items, total] = await this.authorsRepository.findAndCount({
       relations: ['reviews'],
       skip,
-      take: limit,
+      take: validLimit,
       order: { createdAt: 'DESC' },
     });
 
     return {
       items,
       total,
-      page,
-      limit,
-      pages: Math.ceil(total / limit),
+      page: validPage,
+      limit: validLimit,
+      pages: PaginationHelper.calculatePages(total, validLimit),
     };
   }
 
@@ -39,44 +39,35 @@ export class AuthorsService {
     });
   }
 
-  async findByType(
-    type: string,
-    page: number = 1,
-    limit: number = 20,
-  ): Promise<PaginatedResponse<Author>> {
-    const skip = (page - 1) * limit;
+  async findByType(type: string, page: number = 1, limit: number = 20): Promise<PaginatedResponse<Author>> {
+    const { page: validPage, limit: validLimit } = PaginationHelper.validateAndNormalize(page, limit);
+    const skip = PaginationHelper.calculateSkip(validPage, validLimit);
+
     const [items, total] = await this.authorsRepository.findAndCount({
       where: { type },
       relations: ['reviews'],
       skip,
-      take: limit,
+      take: validLimit,
       order: { createdAt: 'DESC' },
     });
 
     return {
       items,
       total,
-      page,
-      limit,
-      pages: Math.ceil(total / limit),
+      page: validPage,
+      limit: validLimit,
+      pages: PaginationHelper.calculatePages(total, validLimit),
     };
   }
 
   async getMostActiveAuthors(limit: number = 10): Promise<Author[]> {
-    const authors = await this.authorsRepository.find({
-      relations: ['reviews'],
-      order: { createdAt: 'DESC' },
-    });
-
-    const authorsWithCount = authors.map((author) => {
-      const reviewCount = author.reviews?.length || 0;
-      return { author, reviewCount };
-    });
-
-    return authorsWithCount
-      .sort((a, b) => b.reviewCount - a.reviewCount)
-      .slice(0, limit)
-      .map((item) => item.author);
+    return this.authorsRepository
+      .createQueryBuilder('author')
+      .leftJoinAndSelect('author.reviews', 'reviews')
+      .addSelect('COUNT(reviews.id)', 'reviewCount')
+      .groupBy('author.id')
+      .orderBy('reviewCount', 'DESC')
+      .limit(limit)
+      .getMany();
   }
-
 }

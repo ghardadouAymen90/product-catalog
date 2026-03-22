@@ -9,11 +9,14 @@ import {
 import { ProductsService } from './products.service';
 import { ProductDto, ProductDetailDto } from '../common/dtos/product.dto';
 import { PaginatedDto } from '../common/dtos/paginated.dto';
+import { PaginationHelper } from '../common/utils/pagination.helper';
+import { PAGINATION } from 'src/common/constants/pagination.constants';
+import { MOST_APPRECIATED } from 'src/common/constants/mostAppreciated.constants';
 
 @ApiTags('Products')
 @Controller('api/products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(private readonly productsService: ProductsService) { }
 
   @Get()
   @ApiOperation({
@@ -26,14 +29,14 @@ export class ProductsController {
     required: false,
     type: Number,
     description: 'Page number (1-indexed)',
-    example: 1,
+    example: PAGINATION.DEFAULT_PAGE,
   })
   @ApiQuery({
     name: 'limit',
     required: false,
     type: Number,
     description: 'Number of items per page',
-    example: 20,
+    example: PAGINATION.DEFAULT_LIMIT,
   })
   @ApiResponse({
     status: 200,
@@ -41,12 +44,11 @@ export class ProductsController {
     type: PaginatedDto<ProductDto>,
   })
   async findAll(
-    @Query('page') page: string = '1',
-    @Query('limit') limit: string = '20',
+    @Query('page') page: string = String(PAGINATION.DEFAULT_PAGE),
+    @Query('limit') limit: string = String(PAGINATION.DEFAULT_LIMIT),
   ) {
-    const pageNum = Math.max(1, parseInt(page) || 1);
-    const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 20));
-    return this.productsService.findAllWithPagination(pageNum, limitNum);
+    const { page: validPage, limit: validLimit } = PaginationHelper.validateAndNormalize(page, limit);
+    return this.productsService.findAllWithPagination(validPage, validLimit);
   }
 
   @Get('appreciated/top')
@@ -61,7 +63,7 @@ export class ProductsController {
     type: [ProductDetailDto],
   })
   async getMostAppreciated() {
-    return this.productsService.getMostAppreciatedProducts(5);
+    return this.productsService.getMostAppreciatedProducts(MOST_APPRECIATED.DEFAULT_LIMIT);
   }
 
   @Get('lowest-rated')
@@ -76,7 +78,7 @@ export class ProductsController {
     type: [ProductDetailDto],
   })
   async getLowestRated() {
-    return this.productsService.getLowestRatedProducts(5);
+    return this.productsService.getLowestRatedProducts(MOST_APPRECIATED.DEFAULT_LIMIT);
   }
 
   @Get('by-reference/:reference')

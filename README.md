@@ -23,7 +23,7 @@ product-catalog/
 
 
 
-## Quick Start
+## Quick Start to launch the app
 
 ### 1. Setup Environment Variables
 
@@ -42,7 +42,7 @@ This command installs dependencies in root, api, and web packages.
 
 ### 3. Local Development (without Docker)
 
-#### Start PostgreSQL
+#### 3.1 Start PostgreSQL
 
 ```bash
 npm run db:up
@@ -54,13 +54,7 @@ Or manually:
 docker-compose up -d postgres
 ```
 
-#### Stop PostgreSQL
-
-```bash
-npm run db:down
-```
-
-#### Run Database Migrations
+#### 3.2 Run Database Migrations
 
 ```bash
 npm run migrate
@@ -68,7 +62,13 @@ npm run migrate
 
 This command runs all migrations, which will create the schema and insert data from `data/products.json`.
 
-#### Start Both API and Web in Parallel
+#### 3.3: Stop PostgreSQL
+
+```bash
+npm run db:down
+```
+
+### 4. Start Both API and Web in Parallel
 
 From root directory:
 
@@ -80,7 +80,7 @@ This starts:
 - API on `http://localhost:3000`
 - Web on `http://localhost:5173`
 
-### 4. Production with Docker
+#### Production with Docker
 
 Build and run everything with Docker Compose:
 
@@ -148,7 +148,7 @@ Query parameters:
 
 ## App layout
 
-![alt text](app-screen-shots/image.png)
-![alt text](app-screen-shots/image-1.png)
-![alt text](app-screen-shots/image-2.png)
-![alt text](app-screen-shots/image-3.png)
+![alt text](data/app-screen-shots/image.png)
+![alt text](data/app-screen-shots/image-1.png)
+![alt text](data/app-screen-shots/image-2.png)
+![alt text](data/app-screen-shots/image-3.png)

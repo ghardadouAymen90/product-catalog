@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Review } from '../entities/review.entity';
 import type { PaginatedResponse } from '../common/types';
+import { PaginationHelper } from '../common/utils/pagination.helper';
 
 @Injectable()
 export class ReviewsService {
@@ -11,24 +12,23 @@ export class ReviewsService {
     private reviewsRepository: Repository<Review>,
   ) {}
 
-  async findAllWithPagination(
-    page: number = 1,
-    limit: number = 20,
-  ): Promise<PaginatedResponse<Review>> {
-    const skip = (page - 1) * limit;
+  async findAllWithPagination(page: number = 1, limit: number = 20): Promise<PaginatedResponse<Review>> {
+    const { page: validPage, limit: validLimit } = PaginationHelper.validateAndNormalize(page, limit);
+    const skip = PaginationHelper.calculateSkip(validPage, validLimit);
+
     const [items, total] = await this.reviewsRepository.findAndCount({
       relations: ['product', 'author'],
       skip,
-      take: limit,
+      take: validLimit,
       order: { date: 'DESC' },
     });
 
     return {
       items,
       total,
-      page,
-      limit,
-      pages: Math.ceil(total / limit),
+      page: validPage,
+      limit: validLimit,
+      pages: PaginationHelper.calculatePages(total, validLimit),
     };
   }
 
@@ -39,73 +39,66 @@ export class ReviewsService {
     });
   }
 
-  async findByProduct(
-    productId: number,
-    page: number = 1,
-    limit: number = 20,
-  ): Promise<PaginatedResponse<Review>> {
-    const skip = (page - 1) * limit;
+  async findByProduct(productId: number, page: number = 1, limit: number = 20): Promise<PaginatedResponse<Review>> {
+    const { page: validPage, limit: validLimit } = PaginationHelper.validateAndNormalize(page, limit);
+    const skip = PaginationHelper.calculateSkip(validPage, validLimit);
+
     const [items, total] = await this.reviewsRepository.findAndCount({
       where: { productId },
       relations: ['author'],
       skip,
-      take: limit,
+      take: validLimit,
       order: { date: 'DESC' },
     });
 
     return {
       items,
       total,
-      page,
-      limit,
-      pages: Math.ceil(total / limit),
+      page: validPage,
+      limit: validLimit,
+      pages: PaginationHelper.calculatePages(total, validLimit),
     };
   }
 
-  async findByAuthor(
-    authorId: number,
-    page: number = 1,
-    limit: number = 20,
-  ): Promise<PaginatedResponse<Review>> {
-    const skip = (page - 1) * limit;
+  async findByAuthor(authorId: number, page: number = 1, limit: number = 20): Promise<PaginatedResponse<Review>> {
+    const { page: validPage, limit: validLimit } = PaginationHelper.validateAndNormalize(page, limit);
+    const skip = PaginationHelper.calculateSkip(validPage, validLimit);
+
     const [items, total] = await this.reviewsRepository.findAndCount({
       where: { authorId },
       relations: ['product'],
       skip,
-      take: limit,
+      take: validLimit,
       order: { date: 'DESC' },
     });
 
     return {
       items,
       total,
-      page,
-      limit,
-      pages: Math.ceil(total / limit),
+      page: validPage,
+      limit: validLimit,
+      pages: PaginationHelper.calculatePages(total, validLimit),
     };
   }
 
-  async findByNotation(
-    notation: number,
-    page: number = 1,
-    limit: number = 20,
-  ): Promise<PaginatedResponse<Review>> {
-    const skip = (page - 1) * limit;
+  async findByNotation(notation: number, page: number = 1, limit: number = 20): Promise<PaginatedResponse<Review>> {
+    const { page: validPage, limit: validLimit } = PaginationHelper.validateAndNormalize(page, limit);
+    const skip = PaginationHelper.calculateSkip(validPage, validLimit);
+
     const [items, total] = await this.reviewsRepository.findAndCount({
       where: { notation },
       relations: ['product', 'author'],
       skip,
-      take: limit,
+      take: validLimit,
       order: { date: 'DESC' },
     });
 
     return {
       items,
       total,
-      page,
-      limit,
-      pages: Math.ceil(total / limit),
+      page: validPage,
+      limit: validLimit,
+      pages: PaginationHelper.calculatePages(total, validLimit),
     };
   }
-
 }

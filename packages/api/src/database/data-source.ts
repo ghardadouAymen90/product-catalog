@@ -12,7 +12,7 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_NAME || 'product_catalog',
   entities: [Product, Review, Author],
-  migrations: [path.join(__dirname, '../migrations/*.ts')],
+  migrations: [path.join(__dirname, './migrations/*.ts')],
   synchronize: false,
   logging: process.env.NODE_ENV !== 'production',
 });

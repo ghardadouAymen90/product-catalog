@@ -6,11 +6,27 @@
       </v-app-bar-title>
     </v-app-bar>
 
+    <v-tabs
+      v-model="activeTab"
+      color="white"
+      class="bg-white elevation-2"
+      show-arrows
+    >
+      <v-tab
+        v-for="tab in navigationTabs"
+        :key="tab.id"
+        :value="tab.id"
+        class="tab-button"
+      >
+        <v-icon size="20" class="mr-2">{{ tab.icon }}</v-icon>
+        {{ tab.label }}
+      </v-tab>
+    </v-tabs>
+
     <v-main class="bg-grey-50">
       <v-container fluid class="py-8 px-4">
-        <section class="mb-12">
-          <v-divider class="mb-6"></v-divider>
-          <h2 class="text-h4 font-weight-bold mb-4" style="color: #019eab;">
+        <section class="mb-12 kpi-sticky">
+          <h2 class="text-h6 font-weight-bold mb-2 kpi-title">
             Key Performance Indicators
           </h2>
           <KPIBar />
@@ -74,10 +90,32 @@ const LowestRatedProducts = defineAsyncComponent(() => import('./components/Lowe
 const ProductCatalog = defineAsyncComponent(() => import('./components/ProductCatalog.vue'));
 
 const catalogCount = ref(0);
+const activeTab = ref('kpi');
+
+const navigationTabs = [
+  { id: 'kpi', label: 'KPI', icon: 'mdi-chart-box' },
+  { id: 'appreciated', label: 'Most Appreciated', icon: 'mdi-star' },
+  { id: 'attention', label: 'Needs Attention', icon: 'mdi-alert-circle' },
+  { id: 'catalog', label: 'Full Catalog', icon: 'mdi-shopping-catalog' },
+];
 </script>
 
 <style scoped>
 :deep(.bg-grey-50) {
   background-color: #f5f5f5;
+}
+
+.kpi-sticky {
+  position: sticky;
+  top: 60px;
+  z-index: 100;
+  background-color: #f5f5f5;
+  padding: 16px 16px;
+  margin: -32px -16px 32px -16px;
+  border-bottom: 4px solid #019eab;
+}
+
+.kpi-title {
+  color: #019eab;
 }
 </style>

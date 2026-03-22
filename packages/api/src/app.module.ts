@@ -9,6 +9,7 @@ import { ProductsModule } from './products/products.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { AuthorsModule } from './authors/authors.module';
 import { StatisticsModule } from './statistics/statistics.module';
+import { DatabaseService } from './database/database.service';
 
 @Module({
   imports: [
@@ -22,5 +23,6 @@ import { StatisticsModule } from './statistics/statistics.module';
     AuthorsModule,
     StatisticsModule,
   ],
+   providers: [DatabaseService]
 })
 export class AppModule {}
