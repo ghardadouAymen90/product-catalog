@@ -6,7 +6,7 @@ export class InsertInitialData1774179856824 implements MigrationInterface {
   public readonly name = 'InsertInitialData1774179856824';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    const dataPath = path.join(__dirname, '../../../../', 'data', 'products.json');
+    const dataPath = path.join(__dirname, '../../../../../', 'data', 'products.json');
     const rawData = fs.readFileSync(dataPath, 'utf-8');
     const products = JSON.parse(rawData);
 

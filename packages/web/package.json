@@ -2,6 +2,7 @@
   "name": "product-catalog-web",
   "version": "1.0.0",
   "type": "module",
+  "author": "Ghardadou Aymen",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",

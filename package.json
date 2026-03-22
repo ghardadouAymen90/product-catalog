@@ -2,6 +2,7 @@
   "name": "product-catalog",
   "version": "1.0.0",
   "description": "Fullstack Product Catalog Application",
+  "author": "Ghardadou Aymen",
   "scripts": {
     "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
     "dev:api": "cd packages/api && npm run dev",

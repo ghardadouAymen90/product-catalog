@@ -9,6 +9,8 @@ import {
 import { ReviewsService } from './reviews.service';
 import { ReviewDto } from '../common/dtos/review.dto';
 import { PaginatedDto } from '../common/dtos/paginated.dto';
+import { PaginationHelper } from '../common/utils/pagination.helper';
+import { PAGINATION } from '../common/constants/pagination.constants';
 
 @ApiTags('Reviews')
 @Controller('api/reviews')
@@ -41,12 +43,11 @@ export class ReviewsController {
     type: PaginatedDto<ReviewDto>,
   })
   async findAll(
-    @Query('page') page: string = '1',
-    @Query('limit') limit: string = '20',
+    @Query('page') page: string = String(PAGINATION.DEFAULT_PAGE),
+    @Query('limit') limit: string = String(PAGINATION.DEFAULT_LIMIT),
   ) {
-    const pageNum = Math.max(1, parseInt(page) || 1);
-    const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 20));
-    return this.reviewsService.findAllWithPagination(pageNum, limitNum);
+    const { page: validPage, limit: validLimit } = PaginationHelper.validateAndNormalize(page, limit);
+    return this.reviewsService.findAllWithPagination(validPage, validLimit);
   }
 
   @Get(':id')
@@ -103,12 +104,11 @@ export class ReviewsController {
   })
   async findByProduct(
     @Param('productId') productId: string,
-    @Query('page') page: string = '1',
-    @Query('limit') limit: string = '20',
+    @Query('page') page: string = String(PAGINATION.DEFAULT_PAGE),
+    @Query('limit') limit: string = String(PAGINATION.DEFAULT_LIMIT),
   ) {
-    const pageNum = Math.max(1, parseInt(page) || 1);
-    const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 20));
-    return this.reviewsService.findByProduct(parseInt(productId), pageNum, limitNum);
+    const { page: validPage, limit: validLimit } = PaginationHelper.validateAndNormalize(page, limit);
+    return this.reviewsService.findByProduct(parseInt(productId), validPage, validLimit);
   }
 
   @Get('author/:authorId')
@@ -142,12 +142,11 @@ export class ReviewsController {
   })
   async findByAuthor(
     @Param('authorId') authorId: string,
-    @Query('page') page: string = '1',
-    @Query('limit') limit: string = '20',
+    @Query('page') page: string = String(PAGINATION.DEFAULT_PAGE),
+    @Query('limit') limit: string = String(PAGINATION.DEFAULT_LIMIT),
   ) {
-    const pageNum = Math.max(1, parseInt(page) || 1);
-    const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 20));
-    return this.reviewsService.findByAuthor(parseInt(authorId), pageNum, limitNum);
+    const { page: validPage, limit: validLimit } = PaginationHelper.validateAndNormalize(page, limit);
+    return this.reviewsService.findByAuthor(parseInt(authorId), validPage, validLimit);
   }
 
   @Get('rating/:notation')
@@ -165,14 +164,14 @@ export class ReviewsController {
     required: false,
     type: Number,
     description: 'Page number (1-indexed)',
-    example: 1,
+    example: PAGINATION.DEFAULT_PAGE,
   })
   @ApiQuery({
     name: 'limit',
     required: false,
     type: Number,
     description: 'Number of items per page',
-    example: 20,
+    example: PAGINATION.DEFAULT_LIMIT,
   })
   @ApiResponse({
     status: 200,
@@ -181,11 +180,10 @@ export class ReviewsController {
   })
   async findByNotation(
     @Param('notation') notation: string,
-    @Query('page') page: string = '1',
-    @Query('limit') limit: string = '20',
+    @Query('page') page: string = String(PAGINATION.DEFAULT_PAGE),
+    @Query('limit') limit: string = String(PAGINATION.DEFAULT_LIMIT),
   ) {
-    const pageNum = Math.max(1, parseInt(page) || 1);
-    const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 20));
-    return this.reviewsService.findByNotation(parseInt(notation), pageNum, limitNum);
+    const { page: validPage, limit: validLimit } = PaginationHelper.validateAndNormalize(page, limit);
+    return this.reviewsService.findByNotation(parseInt(notation), validPage, validLimit);
   }
 }

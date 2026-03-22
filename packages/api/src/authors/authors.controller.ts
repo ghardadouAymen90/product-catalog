@@ -9,11 +9,16 @@ import {
 import { AuthorsService } from './authors.service';
 import { AuthorDto } from '../common/dtos/author.dto';
 import { PaginatedDto } from '../common/dtos/paginated.dto';
+import { PaginationHelper } from '../common/utils/pagination.helper';
+import { PAGINATION } from '../common/constants/pagination.constants';
+import { AUTHORS } from 'src/common/constants/authors.constants';
 
 @ApiTags('Authors')
 @Controller('api/authors')
 export class AuthorsController {
-  constructor(private readonly authorsService: AuthorsService) {}
+
+  constructor(private readonly authorsService: AuthorsService) { }
+
 
   @Get()
   @ApiOperation({
@@ -25,14 +30,14 @@ export class AuthorsController {
     required: false,
     type: Number,
     description: 'Page number (1-indexed)',
-    example: 1,
+    example: PAGINATION.DEFAULT_PAGE,
   })
   @ApiQuery({
     name: 'limit',
     required: false,
     type: Number,
     description: 'Number of items per page',
-    example: 20,
+    example: PAGINATION.DEFAULT_LIMIT,
   })
   @ApiResponse({
     status: 200,
@@ -40,13 +45,13 @@ export class AuthorsController {
     type: PaginatedDto<AuthorDto>,
   })
   async findAll(
-    @Query('page') page: string = '1',
-    @Query('limit') limit: string = '20',
+    @Query('page') page: string = String(PAGINATION.DEFAULT_PAGE),
+    @Query('limit') limit: string = String(PAGINATION.DEFAULT_LIMIT),
   ) {
-    const pageNum = Math.max(1, parseInt(page) || 1);
-    const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 20));
-    return this.authorsService.findAllWithPagination(pageNum, limitNum);
+    const { page: validPage, limit: validLimit } = PaginationHelper.validateAndNormalize(page, limit);
+    return this.authorsService.findAllWithPagination(validPage, validLimit);
   }
+
 
   @Get('top/most-active')
   @ApiOperation({
@@ -60,8 +65,10 @@ export class AuthorsController {
     type: [AuthorDto],
   })
   async getMostActive() {
-    return this.authorsService.getMostActiveAuthors(10);
+    return this.authorsService.getMostActiveAuthors(AUTHORS.MOST_ACTIVE_LIMIT);
   }
+
+
 
   @Get('type/:type')
   @ApiOperation({
@@ -79,14 +86,14 @@ export class AuthorsController {
     required: false,
     type: Number,
     description: 'Page number (1-indexed)',
-    example: 1,
+    example: PAGINATION.DEFAULT_PAGE,
   })
   @ApiQuery({
     name: 'limit',
     required: false,
     type: Number,
     description: 'Number of items per page',
-    example: 20,
+    example: PAGINATION.DEFAULT_LIMIT,
   })
   @ApiResponse({
     status: 200,
@@ -95,13 +102,15 @@ export class AuthorsController {
   })
   async findByType(
     @Param('type') type: string,
-    @Query('page') page: string = '1',
-    @Query('limit') limit: string = '20',
+    @Query('page') page: string = String(PAGINATION.DEFAULT_PAGE),
+    @Query('limit') limit: string = String(PAGINATION.DEFAULT_LIMIT),
   ) {
-    const pageNum = Math.max(1, parseInt(page) || 1);
-    const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 20));
-    return this.authorsService.findByType(type, pageNum, limitNum);
+    const { page: validPage, limit: validLimit } = PaginationHelper.validateAndNormalize(page, limit);
+    return this.authorsService.findByType(type, validPage, validLimit);
   }
+
+
+
 
   @Get(':id')
   @ApiOperation({
