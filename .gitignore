@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+.env.*.local
+packages/api/dist
+packages/api/node_modules
+packages/web/dist
+packages/web/node_modules
+.DS_Store
+*.log
+.idea/
+.vscode/
