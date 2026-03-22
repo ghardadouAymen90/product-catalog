@@ -1,0 +1,23 @@
+{
+  "name": "product-catalog",
+  "version": "1.0.0",
+  "description": "Fullstack Product Catalog Application",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "cd packages/api && npm run dev",
+    "dev:web": "cd packages/web && npm run dev",
+    "build": "concurrently \"npm run build:api\" \"npm run build:web\"",
+    "build:api": "cd packages/api && npm run build",
+    "build:web": "cd packages/web && npm run build",
+    "install:all": "npm install && npm --prefix packages/api install && npm --prefix packages/web install",
+    "start": "NODE_ENV=production && npm run build && docker-compose up --build",
+    "db:up": "docker-compose up -d postgres",
+    "db:down": "docker-compose down",
+    "migrate": "cd packages/api && npm run migration:run",
+    "migrate:revert": "cd packages/api && npm run migration:revert",
+    "db:reset": "npm run db:down && npm run db:up && sleep 2 && npm run migrate"
+  },
+  "devDependencies": {
+    "concurrently": "8.2.2"
+  }
+}
