@@ -4,11 +4,15 @@ import {
   Column,
   ManyToOne,
   CreateDateColumn,
+  Index,
 } from 'typeorm';
 import { Product } from './product.entity';
 import { Author } from './author.entity';
 
 @Entity('reviews')
+@Index(['productId'])
+@Index(['authorId'])
+@Index(['notation'])
 export class Review {
   @PrimaryGeneratedColumn()
   id: number;
@@ -25,7 +29,7 @@ export class Review {
   @ManyToOne(() => Product, (product) => product.reviews, {
     onDelete: 'CASCADE',
   })
-  product: Product;
+  product?: Product;
 
   @Column()
   productId: number;
@@ -33,7 +37,7 @@ export class Review {
   @ManyToOne(() => Author, (author) => author.reviews, {
     onDelete: 'CASCADE',
   })
-  author: Author;
+  author?: Author;
 
   @Column()
   authorId: number;

@@ -4,10 +4,13 @@ import {
   Column,
   OneToMany,
   CreateDateColumn,
+  Index,
 } from 'typeorm';
 import { Review } from './review.entity';
 
 @Entity('authors')
+@Index(['type'])
+@Index(['createdAt'])
 export class Author {
   @PrimaryGeneratedColumn()
   id: number;

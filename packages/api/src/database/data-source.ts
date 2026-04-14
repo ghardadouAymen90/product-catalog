@@ -15,4 +15,12 @@ export const AppDataSource = new DataSource({
   migrations: [path.join(__dirname, './migrations/*.ts')],
   synchronize: false,
   logging: process.env.NODE_ENV !== 'production',
+  extra: {
+    min: parseInt(process.env.DB_POOL_MIN || '2'),
+    max: parseInt(process.env.DB_POOL_MAX || '10'),
+    idleTimeoutMillis: parseInt(process.env.DB_IDLE_TIMEOUT || '30000'),
+    connectionTimeoutMillis: parseInt(process.env.DB_CONNECTION_TIMEOUT || '2000'),
+    statement_timeout: 30000,
+    query_timeout: 30000,
+  },
 });
