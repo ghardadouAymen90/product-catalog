@@ -29,4 +29,6 @@ COPY packages/api/tsconfig.json ./tsconfig.json
 
 EXPOSE 3000
 
-CMD ["node", "dist/main.js"]
+# Run from /app so that relative paths work correctly
+WORKDIR /app
+CMD ["node", "packages/api/dist/main.js"]
