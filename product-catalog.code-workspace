@@ -1,0 +1,16 @@
+{
+  "folders": [
+    {
+      "path": "packages/api",
+      "name": "API"
+    },
+    {
+      "path": "packages/web",
+      "name": "Web"
+    }
+  ],
+  "settings": {
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true
+  }
+}
