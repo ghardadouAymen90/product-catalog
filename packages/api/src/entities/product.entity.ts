@@ -5,10 +5,14 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  Index,
 } from 'typeorm';
 import { Review } from './review.entity';
 
 @Entity('products')
+@Index(['reference'])
+@Index(['name'])
+@Index(['createdAt'])
 export class Product {
   @PrimaryGeneratedColumn()
   id: number;
