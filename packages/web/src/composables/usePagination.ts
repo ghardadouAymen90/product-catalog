@@ -1,4 +1,4 @@
-import { ref, Ref, computed, ComputedRef } from 'vue';
+import { ref, Ref, computed, ComputedRef, onMounted } from 'vue';
 import { apiService } from '../services/api';
 import type { Product } from '../types/index';
 
@@ -61,6 +61,8 @@ export function usePagination(): UsePaginationReturn {
   const getTotalReviews = (): number => {
     return products.value.reduce((acc, p) => acc + (p.reviews?.length || 0), 0);
   };
+
+  onMounted(fetchPage);
 
   return {
     products,

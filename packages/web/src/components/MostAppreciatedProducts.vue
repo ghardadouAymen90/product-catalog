@@ -87,29 +87,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { apiService } from '../services/api';
+import { ref } from 'vue';
+import { useMostAppreciatedProducts } from '../composables/useProducts';
 import type { Product } from '../types/index';
 
-const loading = ref(false);
-const products = ref<Product[]>([]);
+const { loading, products } = useMostAppreciatedProducts();
 const hovered = ref<number | null>(null);
 
 const getPositiveReviewCount = (product: Product): number => {
   if (!product.reviews) return 0;
   return product.reviews.filter((r) => r.notation > 3).length;
 };
-
-onMounted(async () => {
-  loading.value = true;
-  try {
-    products.value = await apiService.getMostAppreciatedProducts();
-  } catch (error) {
-    console.error('Failed to load most appreciated products:', error);
-  } finally {
-    loading.value = false;
-  }
-});
 </script>
 
 <style scoped>

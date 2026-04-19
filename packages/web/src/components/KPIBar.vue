@@ -28,16 +28,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { apiService } from '../services/api';
-import type { KPIData } from '../types/index';
+import { computed } from 'vue';
+import { useKPI } from '../composables/useKPI';
 
-const loading = ref(false);
-const kpi = ref<KPIData>({
-  totalProducts: 0,
-  totalReviews: 0,
-  totalAuthors: 0,
-});
+const { loading, kpi } = useKPI();
 
 const metrics = computed(() => [
   {
@@ -65,17 +59,6 @@ const metrics = computed(() => [
     description: 'Reviewers in database',
   },
 ]);
-
-onMounted(async () => {
-  loading.value = true;
-  try {
-    kpi.value = await apiService.getKPI();
-  } catch (error) {
-    console.error('Failed to load KPI:', error);
-  } finally {
-    loading.value = false;
-  }
-});
 </script>
 
 <style scoped>

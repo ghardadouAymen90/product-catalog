@@ -89,12 +89,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { apiService } from '../services/api';
+import { ref } from 'vue';
+import { useLowestRatedProducts } from '../composables/useProducts';
 import type { Product } from '../types/index';
 
-const loading = ref(false);
-const products = ref<Product[]>([]);
+const { loading, products } = useLowestRatedProducts();
 const hovered = ref<number | null>(null);
 
 const getAverageRating = (product: Product): number => {
@@ -102,17 +101,6 @@ const getAverageRating = (product: Product): number => {
   const sum = product.reviews.reduce((acc, r) => acc + r.notation, 0);
   return sum / product.reviews.length;
 };
-
-onMounted(async () => {
-  loading.value = true;
-  try {
-    products.value = await apiService.getLowestRatedProducts();
-  } catch (error) {
-    console.error('Failed to load lowest-rated products:', error);
-  } finally {
-    loading.value = false;
-  }
-});
 </script>
 
 <style scoped>
